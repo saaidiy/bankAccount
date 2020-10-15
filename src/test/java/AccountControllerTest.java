@@ -1,6 +1,9 @@
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +18,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import fr.ingeniance.kata.StartKataApplication;
 import fr.ingeniance.kata.bo.Account;
+import fr.ingeniance.kata.bo.History;
 import fr.ingeniance.kata.dto.AccountDto;
 import fr.ingeniance.kata.utils.OperationEnum;
 
@@ -75,7 +79,7 @@ public class AccountControllerTest {
         HttpEntity<AccountDto> request = new HttpEntity<>(accountDto, headers);
         ResponseEntity<Account> result = this.restTemplate.postForEntity(uri, request, Account.class);
     	assertTrue(HttpStatus.OK == result.getStatusCode());
-    	//assertEquals(1500L, result.getBody().getBalance().longValue());
+    	assertEquals(1500L, result.getBody().getBalance().longValue());
     }
     
     /*
@@ -94,6 +98,30 @@ public class AccountControllerTest {
         ResponseEntity<Account> result = this.restTemplate.postForEntity(uri, request, Account.class);
     	assertTrue(HttpStatus.OK == result.getStatusCode());
     	//assertEquals(1700L, result.getBody().getBalance().longValue());
+    }
+    
+    /*
+     * I want to see the history (operation, date, amount, balance) of my operations, account number 1
+     * expected : 
+     * 		- HttpStatus	: BAD_REQUEST 
+     */
+    @Test
+    public void checkOperationsTest(){    
+    	AccountDto accountDto = new AccountDto();
+    	accountDto.setId(1L);
+        HttpEntity<AccountDto> request = new HttpEntity<>(accountDto, headers);
+        ResponseEntity<History[]> result = this.restTemplate.postForEntity(uri+"/history", request, History[].class);
+    	assertTrue(HttpStatus.OK == result.getStatusCode());
+    	assertTrue(1 == result.getBody().length);
+    	int idLastOperation = result.getBody().length - 1;
+    	
+    	assertEquals(OperationEnum.DEPOSIT, result.getBody()[idLastOperation].getOperation());
+    	
+    	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    	assertEquals(sdf.format(new Date()), sdf.format(result.getBody()[idLastOperation].getDate()));
+
+    	assertEquals(500L, result.getBody()[idLastOperation].getAmount().longValue());
+    	assertEquals(1500L, result.getBody()[idLastOperation].getBalance().longValue());
     }
 
 }

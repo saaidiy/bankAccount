@@ -1,10 +1,13 @@
 package fr.ingeniance.kata.bo;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import lombok.Data;
 
@@ -17,6 +20,9 @@ public class Account {
 	private Long id;
 
 	private BigDecimal balance;
+	
+	@OneToMany(cascade = {CascadeType.ALL})
+    private List<History> history;
 
 	public Account() {
 		super();
