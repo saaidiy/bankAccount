@@ -53,7 +53,7 @@ public class AccountControllerTest {
      * 		- HttpStatus	: BAD_REQUEST 
      */
     @Test
-    public void makeUnauthorizedDepositTest(){    
+    public void makeUnauthorizedDepositNegativeAmountTest(){    
     	AccountDto accountDto = new AccountDto();
     	accountDto.setAmount(new BigDecimal(-100));
     	accountDto.setId(1L);
@@ -97,7 +97,39 @@ public class AccountControllerTest {
         HttpEntity<AccountDto> request = new HttpEntity<>(accountDto, headers);
         ResponseEntity<Account> result = this.restTemplate.postForEntity(uri, request, Account.class);
     	assertTrue(HttpStatus.OK == result.getStatusCode());
-    	//assertEquals(1700L, result.getBody().getBalance().longValue());
+    	assertEquals(1700L, result.getBody().getBalance().longValue());
+    }
+    
+    /*
+     * I want to make a withdrawal of 5000 from my account number 3
+     * expected : 
+     * 		- HttpStatus	: BAD_REQUEST 
+     */
+    @Test
+    public void makeUnauthorizedWithdrawalTest(){    
+    	AccountDto accountDto = new AccountDto();
+    	accountDto.setAmount(new BigDecimal(5000));
+    	accountDto.setId(3L);
+    	accountDto.setOperation(OperationEnum.WITHDRAWAL);
+        HttpEntity<AccountDto> request = new HttpEntity<>(accountDto, headers);
+        ResponseEntity<Account> result = this.restTemplate.postForEntity(uri, request, Account.class);
+    	assertTrue(HttpStatus.BAD_REQUEST == result.getStatusCode());
+    }
+    
+    /*
+     * I want to make a withdrawal of -100 from my account number 3
+     * expected : 
+     * 		- HttpStatus	: BAD_REQUEST 
+     */
+    @Test
+    public void makeUnauthorizedWithdrawalNegativeAmountTest(){    
+    	AccountDto accountDto = new AccountDto();
+    	accountDto.setAmount(new BigDecimal(-100));
+    	accountDto.setId(3L);
+    	accountDto.setOperation(OperationEnum.WITHDRAWAL);
+        HttpEntity<AccountDto> request = new HttpEntity<>(accountDto, headers);
+        ResponseEntity<Account> result = this.restTemplate.postForEntity(uri, request, Account.class);
+    	assertTrue(HttpStatus.BAD_REQUEST == result.getStatusCode());
     }
     
     /*
